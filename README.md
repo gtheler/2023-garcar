@@ -1,6 +1,6 @@
 ---
 title: Verification of multigroup neutron diffusion codes with MMS
-subtitle: MMS = Method of Manufactured Solutions
+subtitle: (MMS = Method of Manufactured Solutions)
 author: Germán (Jeremy) Theler
 institute: Grupo Argentino de Cálculo y Análisis de Reactores---Reunión Anual 2023
 email: jeremy@seamplex.com
@@ -150,12 +150,12 @@ Compare the numerical results with the analytical solutions.
  
 ## Recipe for code verification
 
- 1. Solve a PDE with the your code and obtain the numerical solution, say $T(\vec{x})$.
+ 1. Solve a PDE with the your code and obtain the numerical solution, say $\phi(\vec{x})$.
  
  2. Compute the error, e.g. $L_2$ error
  
     $$
-    e_2 = \frac{\sqrt{\displaystyle \int \left[ T(\vec{x})-T_\text{exact}(\vec{x}) \right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
+    e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(\vec{x})-\phi_\text{exact}(\vec{x}) \right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
     $$
 
  3. Repeat steps 1-2 with smaller element sizes $h$ and record the pairs $(h, e_2)$
@@ -197,7 +197,7 @@ Compare the numerical results with the analytical solutions.
 ## Deal breaker
 
 $$
-e_2 = \frac{\sqrt{\displaystyle \int \left[ T(\vec{x}) - \tikzmarkin<2->{a1} T_\text{exact}(\vec{x}) \tikzmarkend{a1} \right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
+e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(\vec{x}) - \tikzmarkin<2->{a1} \phi_\text{exact}(\vec{x}) \tikzmarkend{a1} \right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
 $$
     
 . . .
@@ -224,7 +224,7 @@ $$
  
    - How? "differentiate twice" $\rightarrow$ it's easy!
 
-## Manufactured solution for 3D one-group diffusion
+## MMS for 3D one-group diffusion
 
  1. Propose (i.e. _manufacture_) a solution
 
@@ -326,7 +326,7 @@ $$
 
 ## Recipe for MMS
 
- 3. (optional) Convert it to TeX so you can create a Beamer slideshow for TechCon 2023 
+ 3. (optional) Convert it to TeX so you can create a Beamer slideshow
   
     ```terminal
     (%i6) tex(s1(x,y,z));
@@ -354,40 +354,46 @@ $$
 
  5. Choose a domain and decide what type of BCs to apply
 
-    :::::::::::::: {.columns}
-    ::: {.column width="55%"}
-     
-    \centering ![](bunny.jpg){width=80%}
-     
-    :::
-     
-    ::: {.column width="45%"}
-     
-     \vspace{1.5cm}
-     * Fixed flux equal to $\phi_\text{mms}(\vec{x})$
-      
-       - throughout the external surface
-    :::
-    ::::::::::::::
+. . . 
+ 
+:::::::::::::: {.columns}
+::: {.column width="55%"}
+ 
+\centering ![](bunny.jpg){width=80%}
+ 
+:::
+ 
+::: {.column width="45%"}
+ 
+\vspace{2cm}
+ 
+ * Fixed flux equal to $\phi_\text{mms}(\vec{x})$
+  
+   - throughout the external surface
+:::
+::::::::::::::
   
 
 ## Recipe for MMS
 
- 6. Prepare the input for your solver
+ 6. Prepare the input for your solver (FeenoX)
 
     ```feenox
+    PROBLEM neutron_diffusion 3D
+    
     phi1_mms(x,y,z) = log(1+1e-2*z*(y+50)) + 1e-3*(x+sqrt(y+50))
     D1(x,y,z) = 1
     Sigma_a1(x,y,z) = 0.05
     
     [...]
-    PROBLEM neutron_diffusion 3D
     
     # source
     S1(x,y,z) = 0.05*(log(0.01*(y+50)*z+1) + 0.001*(sqrt(y+50)+x)) + (1.0E-4*z^2)/(0.01*(y+50)*z+1)^2 + (1.0E-4*(y+50)^2)/(0.01*(y+50)*z+1)^2 + 2.5E-4/(y+50)^(3/2)
     
     # set Dirichlet BC
     BC external phi1=phi1_mms(x,y,z)
+    
+    [...]
     ```
     
      * extra grade to Maxima & FeenoX for having the same ASCII syntax!
@@ -415,7 +421,30 @@ $$
 
   10. Show off your results! (if they match the theory)
 
+## 
 
+```terminal
+$ ./run.sh 
+# manufactured solution (input)
+phi1_mms(x,y,z) := log(1+1e-2*z*(y+50)) + 1e-3*(x+sqrt(y+50));
+D1(x,y,z) := 1;
+Sigma_a1(x,y,z) := 0.05;
+# source term (output)
+S1(x,y,z) = 0.05*(log(0.01*(y+50)*z+1)+0.001*(sqrt(y+50)+x))+(1.0E-4*z^2)/(0.01*(y+50)*z+1)^2+(1.0E-4*(y+50)^2)/(0.01*(y+50)*z+1)^2+2.5E-4/(y+50)^(3/2)
+neutron_bunny_tet4
+0.882892        -2.913390       -11.628276      20      19682   4707
+0.713751        -3.078327       -11.919410      24      32742   7373
+[...]
+-0.236015       -3.197992       -13.823714      64      567349  103924
+neutron_bunny_tet10
+1.345444        -1.999232       -11.668375      12      4933    8922
+1.092143        -2.130628       -12.250770      16      10558   17898
+[...]
+0.131448        -3.886458       -14.788972      44      188504  273940
+0.045929        -3.739021       -15.018699      48      243633  351128
+$ 
+```
+  
 ## Some results for the bunny: $c=20$
 
 :::::::::::::: {.columns}
@@ -443,7 +472,87 @@ $$
 ::::::::::::::
 
 
+## 
 
+![](neutron-bunny-e2.svg)\ 
+
+## MMS for 2D two-group diffusion
+
+:::::::::::::: {.columns}
+::: {.column width="65%"}
+
+```feenox
+phi1_mms(x,y) = 1 + sin(2*x)^2 * cos(3*y)^2
+D1(x,y) = 1 + 0.1*(x - 0.5*y)
+Sigma_a1(x,y) = 1e-3*(1 + log(1+x) - 0.5*y^3)
+Sigma_s1_2(x,y) = 1e-3*(1 - x + sqrt(0.5*y))
+
+phi2_mms(x,y) = (1-0.5*tanh(-y))*log(1+x)
+D2(x,y) = 1
+Sigma_a2(x,y) = 1e-3
+Sigma_s2_1(x,y) = 0
+
+BC left   phi1=phi1_mms(x,y)    phi2=phi2_mms(x,y)
+BC top    phi1=phi1_mms(x,y)    phi2=phi2_mms(x,y)
+BC bottom J1=+Jy1_mms(x,y)      J2=+Jy2_mms(x,y)
+BC right  J1=-Jx1_mms(x,y)      J2=-Jx2_mms(x,y)
+```
+:::
+
+
+::: {.column width="35%"}
+
+\vspace{1cm}
+
+![](square.svg){width=100%}
+
+:::
+::::::::::::::
+
+
+## 
+
+```terminal
+$ ./run.sh 
+# manufactured solution (input)
+phi1_mms(x,y) := 1 + sin(2*x)^2 * cos(3*y)^2;
+phi2_mms(x,y) := (1-0.5*tanh(-y))*log(1+x);
+D1(x,y) := 1 + 0.1*(x - 0.5*y);
+Sigma_a1(x,y) := 1e-3*(1 + log(1+x) - 0.5*y^3);
+Sigma_s1_2(x,y) := 1e-3*(1 - x + sqrt(0.5*y));
+D2(x,y) := 1;
+Sigma_a2(x,y) := 1e-3;
+Sigma_s2_1(x,y) := 0;
+# source terms (output)
+S1(x,y) = (-18*sin(2*x)^2*(0.1*(x-0.5*y)+1)*sin(3*y)^2)-0.3*sin(2*x)^2*cos(3*y)*sin(3*y)+0.001*((-0.5*y^3)+log(x+1)+1)*(sin(2*x)^2*cos(3*y)^2+1)+26*sin(2*x)^2*(0.1*(x-0.5*y)+1)*cos(3*y)^2-8*cos(2*x)^2*(0.1*(x-0.5*y)+1)*cos(3*y)^2-0.4*cos(2*x)*sin(2*x)*cos(3*y)^2
+S2(x,y) = (-0.001*(0.7071067811865476*sqrt(y)-x+1)*(sin(2*x)^2*cos(3*y)^2+1))+1.0*log(x+1)*sech(y)^2*tanh(y)+0.001*log(x+1)*(0.5*tanh(y)+1)+(0.5*tanh(y)+1)/(x+1)^2
+J1x(x,y) = 4*cos(2*x)*sin(2*x)*((-0.1*(x-0.5*y))-1)*cos(3*y)^2
+J1y(x,y) = -6*sin(2*x)^2*((-0.1*(x-0.5*y))-1)*cos(3*y)*sin(3*y)
+J2x(x,y) = -(0.5*tanh(y)+1)/(x+1)
+J2y(x,y) = -0.5*log(x+1)*sech(y)^2
+```
+
+## 
+
+:::::::::::::: {.columns}
+::: {.column width="50%"}
+\centering ![](tri-struct.png){width=50%}
+
+\centering ![](quad-struct.png){width=50%}
+
+:::
+
+
+::: {.column width="50%"}
+\centering ![](tri-frontal.png){width=50%}
+
+\centering ![](quad-frontal.png){width=50%}
+:::
+::::::::::::::
+
+## 
+
+![](neutron-square-e2.svg)\ 
 
 ## Conclusions
 
@@ -464,7 +573,6 @@ $$
  * Works for linear an (some) non-linear PDEs
    - Thinks like mixed formulations and eigen problems need some extra work 
    - Non-linear mechanical material models are hard
-   - Contact is off the table
    
 . . .
    
@@ -489,6 +597,16 @@ $$
 ## Conclusions
 
  * The MMS provides a way for users to verify our codes by themselves!
-   - Even if they do not fulfill the checklist, they can hire someone who does
+   - Even if they do not fulfill the checklist, they have **the freedom** to hire someone who does
    - It is a way to get third-party independent verifications
  
+. . .
+
+ * Follow-up links
+ 
+   - FeenoX MMS directory
+     - <https://github.com/seamplex/feenox/tree/main/tests/mms>
+   
+   - Section 6.9 of my PhD Thesis "Neutron transport in the cloud"
+     - <https://seamplex.com/thesis/html/060-resultados/README.html#sec-mms-dif>
+   
