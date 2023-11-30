@@ -197,7 +197,11 @@ Compare the numerical results with the analytical solutions.
 ## Deal breaker
 
 $$
-e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(\vec{x}) - \tikzmarkin<2->{a1} \phi_\text{exact}(\vec{x}) \tikzmarkend{a1} \right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
+e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(\vec{x}) -
+\onslide<2->{\tikzmarkin{a1}}
+\phi_\text{exact}(\vec{x})
+\onslide<2->{\tikzmarkend{a1}}
+\right]^2 \, d^3\vec{x}}}{\displaystyle \int \, d^3{\vec{x}}}
 $$
     
 . . .
