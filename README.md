@@ -409,7 +409,7 @@ $$
      b. solve
      c. compute the $L_2$ error with respect to the manufactured $\phi_\text{mms}(\vec{x})$
         $$
-        e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(x,y) - \phi_\text{mms}(x,y) \right]^2 \, dx \, dy \, dz}}{\displaystyle \int  \, dx \, dy\, dz}
+        e_2 = \frac{\sqrt{\displaystyle \int \left[ \phi(x,y,z) - \phi_\text{mms}(x,y,z) \right]^2 \, dx \, dy \, dz}}{\displaystyle \int  \, dx \, dy\, dz}
         $$
 
 . . .
