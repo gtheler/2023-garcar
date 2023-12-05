@@ -19,7 +19,6 @@ nocite: |
 bibliography: references.bib
 ...
 
-
 ## Dependencies: <https://seamplex.com/feenox>
 
 ### FeenoX
